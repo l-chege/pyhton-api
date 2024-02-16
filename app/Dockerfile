@@ -1,16 +1,24 @@
-FROM python:3.8-slim
+# 1. build stage
+FROM python:3.8-slim AS builder
 
-# Set the working directory in the container
+# set working dir in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
+# copy current dir contents into container at /app
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
+# install needed packages in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at /app
+# copy current dir contents into container at /app
 COPY . .
 
-# Run app.py when the container launches
+# 2. prod stage
+FROM python:3.8-slim
+
+WORKDIR /app
+
+COPY --from=builder /app /app
+
+# Run app.py when container launches
 CMD ["python", "app.py"]
